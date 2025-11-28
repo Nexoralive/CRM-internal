@@ -53,7 +53,7 @@ export class Customer {
     @Column({ name: 'panel_name', nullable: true })
     panelName: string;
 
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_date', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdDate: Date;
 
     @Column({ nullable: true })
