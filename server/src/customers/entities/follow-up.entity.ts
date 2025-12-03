@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Customer } from './customer.entity';
 
 @Entity('follow_ups')
 export class FollowUp {
@@ -11,7 +18,7 @@ export class FollowUp {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'uuid' })
   customerId: string;
 
   @Column({ type: 'text' })
@@ -19,4 +26,8 @@ export class FollowUp {
 
   @Column({ type: 'text', default: 'pending' })
   status: 'pending' | 'completed' | 'cancelled';
+
+  @ManyToOne(() => Customer, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer;
 }

@@ -1,5 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Button, TextField, Typography, Alert, Chip, Divider, IconButton, Menu, MenuItem, Pagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Alert,
+  Chip,
+  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
+  Pagination
+} from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import api from '../../utils/axios';
 import { isAxiosError } from 'axios';
@@ -39,10 +51,21 @@ function buildLocalDate(dateStr: string, timeStr: string): Date {
   const [year, month, day] = dateStr.split('-').map(Number);
   const [hour, minute] = timeStr.split(':').map(Number);
   // Date uses local timezone when provided as discrete parts
-  return new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0);
+  return new Date(
+    year,
+    (month || 1) - 1,
+    day || 1,
+    hour || 0,
+    minute || 0,
+    0,
+    0
+  );
 }
 
-export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProps) {
+export default function FollowUpForm({
+  customerId,
+  onSuccess
+}: FollowUpFormProps) {
   const [date, setDate] = useState<string>(getTodayDateString());
   const [time, setTime] = useState<string>(''); // no default time to avoid initial error state
   const [content, setContent] = useState<string>('');
@@ -60,7 +83,9 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
   const [followUps, setFollowUps] = useState<FollowUpItem[]>([]);
   const [listError, setListError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [actionAnchorEl, setActionAnchorEl] = useState<HTMLElement | null>(null);
+  const [actionAnchorEl, setActionAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const [actionForId, setActionForId] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -81,7 +106,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
         day: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true,
+        hour12: true
       });
     } catch {
       return isoString;
@@ -112,13 +137,19 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
         timeErrorMsg = 'Date/time cannot be in the past';
       }
     }
-    return { dateError: dateErrorMsg, timeError: timeErrorMsg, contentError: contentErrorMsg };
+    return {
+      dateError: dateErrorMsg,
+      timeError: timeErrorMsg,
+      contentError: contentErrorMsg
+    };
   }, [date, time, content]);
 
   const hasErrors = Boolean(dateError || timeError || contentError);
   const showDateError = Boolean(dateError && (dateTouched || submitAttempted));
   const showTimeError = Boolean(timeError && (timeTouched || submitAttempted));
-  const showContentError = Boolean(contentError && (contentTouched || submitAttempted));
+  const showContentError = Boolean(
+    contentError && (contentTouched || submitAttempted)
+  );
 
   const fetchFollowUps = async (overridePage?: number) => {
     if (!customerId) return;
@@ -126,11 +157,15 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
       setListLoading(true);
       setListError(null);
       const currentPage = overridePage ?? page;
-      const res = await api.get(`/customers/follow-ups/${encodeURIComponent(customerId)}`, {
-        params: { page: currentPage, limit },
-      });
+      const res = await api.get(
+        `/customers/follow-ups/${encodeURIComponent(customerId)}`,
+        {
+          params: { page: currentPage, limit }
+        }
+      );
       const items = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
-      const pages = typeof res.data?.totalPages === 'number' ? res.data.totalPages : 1;
+      const pages =
+        typeof res.data?.totalPages === 'number' ? res.data.totalPages : 1;
       setFollowUps(items);
       setTotalPages(pages);
     } catch (err: unknown) {
@@ -159,10 +194,13 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
     try {
       setSubmitting(true);
       const when = buildLocalDate(date, time);
-      await api.post(`/customers/follow-ups/${encodeURIComponent(customerId)}`, {
-        content: content.trim(),
-        date: when.toISOString(),
-      });
+      await api.post(
+        `/customers/follow-ups/${encodeURIComponent(customerId)}`,
+        {
+          content: content.trim(),
+          date: when.toISOString()
+        }
+      );
       setSuccess('Follow-up scheduled successfully.');
       setContent('');
       setTime('');
@@ -184,11 +222,14 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
     }
   };
 
-  const updateStatus = async (id: string, status: 'completed' | 'cancelled') => {
+  const updateStatus = async (
+    id: string,
+    status: 'completed' | 'cancelled'
+  ) => {
     try {
       setUpdatingId(id);
       await api.patch(`/customers/follow-ups/${encodeURIComponent(id)}`, {
-        status,
+        status
       });
       await fetchFollowUps();
     } catch (err: unknown) {
@@ -239,7 +280,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
           label="Date"
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={e => setDate(e.target.value)}
           onBlur={() => setDateTouched(true)}
           InputLabelProps={{ shrink: true }}
           inputProps={{ min: minDate }}
@@ -252,7 +293,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
           label="Time"
           type="time"
           value={time}
-          onChange={(e) => setTime(e.target.value)}
+          onChange={e => setTime(e.target.value)}
           onBlur={() => setTimeTouched(true)}
           InputLabelProps={{ shrink: true }}
           inputProps={{ min: minTime }}
@@ -263,18 +304,32 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
         />
       </Box>
 
-      <TextField
-        label="Note"
-        multiline
-        minRows={3}
-        fullWidth
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onBlur={() => setContentTouched(true)}
-        error={showContentError}
-        helperText={showContentError ? contentError : ' '}
-        required
-      />
+      <Box sx={{ position: 'relative' }}>
+        <TextField
+          label="Note"
+          multiline
+          minRows={3}
+          fullWidth
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          onBlur={() => setContentTouched(true)}
+          error={showContentError}
+          helperText={showContentError ? contentError : ' '}
+          inputProps={{ maxLength: 128 }}
+          required
+        />
+        <Typography
+          variant="caption"
+          sx={{
+            position: 'absolute',
+            right: 8,
+            bottom: 8,
+            color: 'text.secondary'
+          }}
+        >
+          {content.length}/128
+        </Typography>
+      </Box>
 
       <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-start' }}>
         <Button
@@ -302,7 +357,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
         <Typography color="text.secondary">No follow-ups found.</Typography>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {followUps.map((f) => (
+          {followUps.map(f => (
             <Box
               key={f.id}
               sx={{
@@ -312,7 +367,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
                 p: 1.5,
                 border: '1px solid',
                 borderColor: 'divider',
-                borderRadius: 1,
+                borderRadius: 1
               }}
             >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -339,7 +394,7 @@ export default function FollowUpForm({ customerId, onSuccess }: FollowUpFormProp
                   <>
                     <IconButton
                       aria-label="actions"
-                      onClick={(e) => handleOpenActions(f.id, e.currentTarget)}
+                      onClick={e => handleOpenActions(f.id, e.currentTarget)}
                       disabled={updatingId === f.id}
                     >
                       <MoreVertIcon />

@@ -31,6 +31,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       database: 'crm_db',
       autoLoadEntities: true,
       synchronize: true, // Only for dev
+      logging: true,
       entities: [User, Website, Customer, Tag, FollowUp],
     }),
     TypeOrmModule.forFeature([User, Website, Customer, Tag, FollowUp]),

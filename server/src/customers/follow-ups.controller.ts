@@ -22,6 +22,19 @@ import { UpdateFollowUpDto } from './dto/update-follow-up.dto';
 export class FollowUpsController {
   constructor(private readonly followUpsService: FollowUpsService) {}
 
+  @Get('todays')
+  todaysFollowUpsForAgent(
+    @CurrentUser() user: User,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.followUpsService.todaysFollowUpsForAgent(
+      user,
+      Number(limit),
+      Number(page),
+    );
+  }
+
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.AGENT)
   @Post(':customerId')
@@ -50,14 +63,12 @@ export class FollowUpsController {
     @CurrentUser() user: User,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
-    @Query('forNotifications') forNotifications?: string,
   ) {
     return this.followUpsService.findAllByCustomerForAgent(
       customerId,
       user,
       page,
       limit,
-      forNotifications === 'true' ? true : false,
     );
   }
 }
