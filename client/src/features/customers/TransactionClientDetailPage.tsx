@@ -26,6 +26,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InteractionForm from '../interactions/InteractionForm';
 import InteractionList from '../interactions/InteractionList';
 import CommunicationDialog from '../integrations/CommunicationDialog';
+import FollowUpForm from '../follow-ups/FollowUpForm';
 import api from '../../utils/axios';
 import { isAxiosError } from 'axios';
 import {
@@ -473,6 +474,7 @@ const TransactionClientDetailPage = () => {
                 <Tab label={`Deposits (${data.summary.depositCount})`} />
                 <Tab label={`Withdrawals (${data.summary.withdrawalCount})`} />
                 <Tab label="Comments" />
+                <Tab label="Follow-ups" />
               </Tabs>
             </Box>
 
@@ -570,6 +572,11 @@ const TransactionClientDetailPage = () => {
                     customerId={(data.customerId as string) || ''}
                   />
                 </Box>
+              </Box>
+            </TabPanel>
+            <TabPanel value={tabValue} index={3}>
+              <Box>
+                <FollowUpForm customerId={(data.customerId as string) || ''} />
               </Box>
             </TabPanel>
           </Paper>
