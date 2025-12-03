@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { WebsitesService } from './websites.service';
 import { CreateWebsiteDto } from './dto/create-website.dto';
 import { UpdateWebsiteDto } from './dto/update-website.dto';
@@ -7,7 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @Controller('websites')
 @UseGuards(JwtAuthGuard)
 export class WebsitesController {
-  constructor(private readonly websitesService: WebsitesService) { }
+  constructor(private readonly websitesService: WebsitesService) {}
 
   @Post()
   create(@Body() createWebsiteDto: CreateWebsiteDto) {

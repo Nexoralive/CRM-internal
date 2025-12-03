@@ -4,9 +4,9 @@ import { IntegrationsController } from './integrations.controller';
 import { InteractionsModule } from '../interactions/interactions.module';
 
 @Module({
-    imports: [InteractionsModule],
-    controllers: [IntegrationsController],
-    providers: [IntegrationsService],
-    exports: [IntegrationsService],
+  imports: [InteractionsModule],
+  controllers: [IntegrationsController],
+  providers: [IntegrationsService],
+  exports: [IntegrationsService],
 })
-export class IntegrationsModule { }
+export class IntegrationsModule {}

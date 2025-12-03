@@ -1,4 +1,11 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportService } from './import.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -10,11 +17,14 @@ import { UserRole } from '../users/entities/user.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.MANAGER)
 export class ImportController {
-  constructor(private readonly importService: ImportService) { }
+  constructor(private readonly importService: ImportService) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Body('websiteId') websiteId: string) {
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('websiteId') websiteId: string,
+  ) {
     return this.importService.importCsv(file.buffer, websiteId);
   }
 }

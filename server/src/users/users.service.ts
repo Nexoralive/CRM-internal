@@ -11,7 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const { password, ...rest } = createUserDto;
@@ -28,11 +28,17 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.usersRepository.findOne({ where: { id }, relations: ['website'] });
+    return this.usersRepository.findOne({
+      where: { id },
+      relations: ['website'],
+    });
   }
 
   async findOneByEmail(email: string) {
-    return this.usersRepository.findOne({ where: { email }, relations: ['website'] });
+    return this.usersRepository.findOne({
+      where: { email },
+      relations: ['website'],
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

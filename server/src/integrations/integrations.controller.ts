@@ -6,15 +6,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @Controller('integrations')
 @UseGuards(JwtAuthGuard)
 export class IntegrationsController {
-    constructor(private readonly integrationsService: IntegrationsService) { }
+  constructor(private readonly integrationsService: IntegrationsService) {}
 
-    @Post('message')
-    sendMessage(@Body() sendMessageDto: SendMessageDto) {
-        return this.integrationsService.sendMessage(sendMessageDto);
-    }
+  @Post('message')
+  sendMessage(@Body() sendMessageDto: SendMessageDto) {
+    return this.integrationsService.sendMessage(sendMessageDto);
+  }
 
-    @Post('call')
-    initiateCall(@Body() body: { customerId: string; agentId: string }) {
-        return this.integrationsService.initiateCall(body.customerId, body.agentId);
-    }
+  @Post('call')
+  initiateCall(@Body() body: { customerId: string; agentId: string }) {
+    return this.integrationsService.initiateCall(body.customerId, body.agentId);
+  }
 }

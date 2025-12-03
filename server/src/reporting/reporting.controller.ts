@@ -3,7 +3,7 @@ import { ReportingService } from './reporting.service';
 
 @Controller('reporting')
 export class ReportingController {
-  constructor(private readonly reportingService: ReportingService) { }
+  constructor(private readonly reportingService: ReportingService) {}
 
   @Get('agent/:agentId')
   getAgentPerformance(

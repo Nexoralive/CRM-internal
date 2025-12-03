@@ -10,4 +10,4 @@ import { Interaction } from './entities/interaction.entity';
   providers: [InteractionsService],
   exports: [InteractionsService],
 })
-export class InteractionsModule { }
+export class InteractionsModule {}

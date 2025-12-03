@@ -12,4 +12,4 @@ import { CustomersModule } from '../customers/customers.module';
   providers: [ColdLeadsService],
   exports: [ColdLeadsService],
 })
-export class ColdLeadsModule { }
+export class ColdLeadsModule {}

@@ -9,4 +9,4 @@ import { Website } from './entities/website.entity';
   controllers: [WebsitesController],
   providers: [WebsitesService],
 })
-export class WebsitesModule { }
+export class WebsitesModule {}

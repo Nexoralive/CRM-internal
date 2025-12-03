@@ -1,11 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ColdLeadsService } from './cold-leads.service';
 import { CreateColdLeadDto } from './dto/create-cold-lead.dto';
 import { UpdateColdLeadDto } from './dto/update-cold-lead.dto';
 
 @Controller('cold-leads')
 export class ColdLeadsController {
-  constructor(private readonly coldLeadsService: ColdLeadsService) { }
+  constructor(private readonly coldLeadsService: ColdLeadsService) {}
 
   @Post()
   create(@Body() createColdLeadDto: CreateColdLeadDto) {
@@ -18,7 +27,10 @@ export class ColdLeadsController {
   }
 
   @Get('available')
-  findAvailable(@Query('websiteId') websiteId: string, @Query('limit') limit?: number) {
+  findAvailable(
+    @Query('websiteId') websiteId: string,
+    @Query('limit') limit?: number,
+  ) {
     return this.coldLeadsService.findAvailable(websiteId, limit ? +limit : 50);
   }
 
@@ -43,7 +55,10 @@ export class ColdLeadsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateColdLeadDto: UpdateColdLeadDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateColdLeadDto: UpdateColdLeadDto,
+  ) {
     return this.coldLeadsService.update(id, updateColdLeadDto);
   }
 

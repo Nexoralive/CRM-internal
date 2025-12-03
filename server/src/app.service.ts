@@ -15,7 +15,7 @@ export class AppService {
     private websitesRepository: Repository<Website>,
     @InjectRepository(Customer)
     private customersRepository: Repository<Customer>,
-  ) { }
+  ) {}
 
   getHello(): string {
     return 'Hello World!';
@@ -23,7 +23,9 @@ export class AppService {
 
   async seed() {
     // Seed Website
-    let website = await this.websitesRepository.findOne({ where: { name: 'Demo Site' } });
+    let website = await this.websitesRepository.findOne({
+      where: { name: 'Demo Site' },
+    });
     if (!website) {
       website = this.websitesRepository.create({
         name: 'Demo Site',
@@ -57,9 +59,9 @@ export class AppService {
         username: 'john_doe',
         email: 'john.doe@example.com',
         phone: '+1234567890',
-        totalDeposits: 1500.00,
+        totalDeposits: 1500.0,
         lastDepositDate: new Date('2024-01-15'),
-        lastDepositAmount: 500.00,
+        lastDepositAmount: 500.0,
         status: CustomerStatus.RETAINED,
         category: 'VIP',
       },
@@ -68,9 +70,9 @@ export class AppService {
         username: 'jane_smith',
         email: 'jane.smith@example.com',
         phone: '+1234567891',
-        totalDeposits: 750.00,
+        totalDeposits: 750.0,
         lastDepositDate: new Date('2024-01-10'),
-        lastDepositAmount: 250.00,
+        lastDepositAmount: 250.0,
         status: CustomerStatus.ONE_TIME_DEPOSIT,
         category: 'Regular',
       },
@@ -79,9 +81,9 @@ export class AppService {
         username: 'bob_wilson',
         email: 'bob.wilson@example.com',
         phone: '+1234567892',
-        totalDeposits: 2500.00,
+        totalDeposits: 2500.0,
         lastDepositDate: new Date('2024-01-20'),
-        lastDepositAmount: 1000.00,
+        lastDepositAmount: 1000.0,
         status: CustomerStatus.RETAINED,
         category: 'VIP',
       },

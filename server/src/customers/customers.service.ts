@@ -10,7 +10,7 @@ export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private customersRepository: Repository<Customer>,
-  ) { }
+  ) {}
 
   create(createCustomerDto: CreateCustomerDto) {
     const customer = this.customersRepository.create(createCustomerDto);
@@ -19,7 +19,8 @@ export class CustomersService {
 
   async getOptions(website?: string) {
     // Fetch distinct website names from the related Website entity
-    const websiteRows = await this.customersRepository.createQueryBuilder('customer')
+    const websiteRows = await this.customersRepository
+      .createQueryBuilder('customer')
       .leftJoin('customer.website', 'website')
       .select('DISTINCT website.name', 'website')
       .where('website.name IS NOT NULL')
@@ -27,12 +28,15 @@ export class CustomersService {
       .getRawMany();
 
     // Fetch distinct branches from Customer (optionally filtered by website name)
-    let branchQuery = this.customersRepository.createQueryBuilder('customer')
+    let branchQuery = this.customersRepository
+      .createQueryBuilder('customer')
       .select('DISTINCT customer.branch', 'branch')
       .where('customer.branch IS NOT NULL');
 
     if (website) {
-      branchQuery = branchQuery.andWhere('customer.websiteName = :website', { website });
+      branchQuery = branchQuery.andWhere('customer.websiteName = :website', {
+        website,
+      });
     }
 
     const branchRows = await branchQuery
@@ -40,8 +44,8 @@ export class CustomersService {
       .getRawMany();
 
     return {
-      websites: websiteRows.map(w => w.website),
-      branches: branchRows.map(b => b.branch),
+      websites: websiteRows.map((w) => w.website),
+      branches: branchRows.map((b) => b.branch),
     };
   }
 
@@ -51,7 +55,7 @@ export class CustomersService {
     status?: string,
     lastDepositDate?: string,
     website?: string,
-    branch?: string
+    branch?: string,
   ) {
     const where: any = {};
 
@@ -105,7 +109,7 @@ export class CustomersService {
     if (search) {
       qb.andWhere(
         '(customer.username ILIKE :search OR customer.email ILIKE :search OR customer.phone ILIKE :search)',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 
@@ -115,7 +119,9 @@ export class CustomersService {
 
     if (lastDepositDate) {
       // Cast to date to ignore time
-      qb.andWhere('DATE(customer.lastDepositDate) = :lastDepositDate', { lastDepositDate });
+      qb.andWhere('DATE(customer.lastDepositDate) = :lastDepositDate', {
+        lastDepositDate,
+      });
     }
 
     if (website) {
@@ -137,7 +143,9 @@ export class CustomersService {
 
     if (customer) {
       // Update existing
-      customer.totalDeposits = Number(customer.totalDeposits) + Number(customerData.lastDepositAmount || 0);
+      customer.totalDeposits =
+        Number(customer.totalDeposits) +
+        Number(customerData.lastDepositAmount || 0);
       if (customerData.lastDepositDate) {
         customer.lastDepositDate = customerData.lastDepositDate;
       }
@@ -146,7 +154,10 @@ export class CustomersService {
       }
 
       // Logic: Redeposit check
-      if (customer.status === 'contacted' && (customerData.lastDepositAmount || 0) > 0) {
+      if (
+        customer.status === 'contacted' &&
+        (customerData.lastDepositAmount || 0) > 0
+      ) {
         customer.status = CustomerStatus.RETAINED;
       }
     } else {

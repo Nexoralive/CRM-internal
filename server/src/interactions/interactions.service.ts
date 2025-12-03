@@ -10,10 +10,11 @@ export class InteractionsService {
   constructor(
     @InjectRepository(Interaction)
     private interactionsRepository: Repository<Interaction>,
-  ) { }
+  ) {}
 
   create(createInteractionDto: CreateInteractionDto) {
-    const interaction = this.interactionsRepository.create(createInteractionDto);
+    const interaction =
+      this.interactionsRepository.create(createInteractionDto);
     return this.interactionsRepository.save(interaction);
   }
 

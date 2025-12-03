@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual } from 'typeorm';
 import { CreateColdLeadDto } from './dto/create-cold-lead.dto';
@@ -12,10 +17,12 @@ export class ColdLeadsService {
     @InjectRepository(ColdLead)
     private coldLeadsRepository: Repository<ColdLead>,
     private customersService: CustomersService,
-  ) { }
+  ) {}
 
   async promoteToCustomer(leadId: string, agentId: string) {
-    const lead = await this.coldLeadsRepository.findOne({ where: { id: leadId } });
+    const lead = await this.coldLeadsRepository.findOne({
+      where: { id: leadId },
+    });
     if (!lead) {
       throw new NotFoundException('Lead not found');
     }
@@ -82,7 +89,9 @@ export class ColdLeadsService {
     }
 
     // Claim the lead
-    const lead = await this.coldLeadsRepository.findOne({ where: { id: leadId } });
+    const lead = await this.coldLeadsRepository.findOne({
+      where: { id: leadId },
+    });
     if (!lead) {
       throw new BadRequestException('Lead not found');
     }
