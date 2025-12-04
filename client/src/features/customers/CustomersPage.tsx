@@ -5,6 +5,7 @@ import {
     Box,
     Typography,
     Paper,
+    Collapse,
     Table,
     TableBody,
     TableCell,
@@ -21,8 +22,9 @@ import {
     MenuItem,
     IconButton,
     Tooltip,
+    Button,
 } from '@mui/material';
-import { WhatsApp, Phone } from '@mui/icons-material';
+import { WhatsApp, Phone, ExpandMore, ExpandLess } from '@mui/icons-material';
 import { fetchCustomers, fetchCustomerOptions } from './customersSlice';
 import CommunicationDialog from '../integrations/CommunicationDialog';
 import type { AppDispatch, RootState } from '../../store/store';
@@ -39,9 +41,16 @@ const CustomersPage = () => {
     const [lastDepositDate, setLastDepositDate] = useState('');
     const [website, setWebsite] = useState('');
     const [branch, setBranch] = useState('');
+    // applied filter state (used to actually query)
+    const [appliedSearch, setAppliedSearch] = useState('');
+    const [appliedStatus, setAppliedStatus] = useState('');
+    const [appliedLastDepositDate, setAppliedLastDepositDate] = useState('');
+    const [appliedWebsite, setAppliedWebsite] = useState('');
+    const [appliedBranch, setAppliedBranch] = useState('');
 
     const [contactDialogOpen, setContactDialogOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; name: string; phone: string } | null>(null);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     useEffect(() => {
         dispatch(fetchCustomerOptions(undefined));
@@ -53,17 +62,17 @@ const CustomersPage = () => {
         }
     }, [dispatch, website]);
 
-    // Fetch customers whenever filters change
+    // Fetch customers whenever applied filters change
     useEffect(() => {
         dispatch(fetchCustomers({
             websiteId,
-            search: search || undefined,
-            status: statusFilter || undefined,
-            lastDepositDate: lastDepositDate || undefined,
-            website: website || undefined,
-            branch: branch || undefined
+            search: appliedSearch || undefined,
+            status: appliedStatus || undefined,
+            lastDepositDate: appliedLastDepositDate || undefined,
+            website: appliedWebsite || undefined,
+            branch: appliedBranch || undefined
         }));
-    }, [dispatch, websiteId, search, statusFilter, lastDepositDate, website, branch]);
+    }, [dispatch, websiteId, appliedSearch, appliedStatus, appliedLastDepositDate, appliedWebsite, appliedBranch]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
@@ -71,6 +80,25 @@ const CustomersPage = () => {
 
     const handleStatusChange = (e: any) => {
         setStatusFilter(e.target.value as string);
+    };
+    const handleApplyFilters = () => {
+        setAppliedSearch(search);
+        setAppliedStatus(statusFilter);
+        setAppliedLastDepositDate(lastDepositDate);
+        setAppliedWebsite(website);
+        setAppliedBranch(branch);
+    };
+    const handleClearFilters = () => {
+        setSearch('');
+        setStatusFilter('');
+        setLastDepositDate('');
+        setWebsite('');
+        setBranch('');
+        setAppliedSearch('');
+        setAppliedStatus('');
+        setAppliedLastDepositDate('');
+        setAppliedWebsite('');
+        setAppliedBranch('');
     };
 
     // UI for filters
@@ -117,6 +145,15 @@ const CustomersPage = () => {
                 InputLabelProps={{ shrink: true }}
                 value={lastDepositDate}
                 onChange={(e) => setLastDepositDate(e.target.value)}
+                onFocus={() => {
+                    if (!lastDepositDate) {
+                        const d = new Date();
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        setLastDepositDate(`${yyyy}-${mm}-${dd}`);
+                    }
+                }}
             />
             <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
                 <InputLabel id="website-filter-label">Website</InputLabel>
@@ -146,6 +183,14 @@ const CustomersPage = () => {
                     ))}
                 </Select>
             </FormControl>
+            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+                <Button variant="outlined" size="small" onClick={handleClearFilters}>
+                    Clear
+                </Button>
+                <Button variant="contained" size="small" onClick={handleApplyFilters}>
+                    Apply
+                </Button>
+            </Box>
         </Box>
     );
 
@@ -176,7 +221,31 @@ const CustomersPage = () => {
             <Typography variant="h4" gutterBottom>
                 My Customers
             </Typography>
-            {filterBox}
+            <Paper sx={{ p: 1, mb: 2 }}>
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{ px: 1, py: 0.5, cursor: 'pointer' }}
+                    onClick={() => setFiltersOpen(v => !v)}
+                >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Filters</Typography>
+                    <IconButton
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setFiltersOpen(v => !v);
+                        }}
+                    >
+                        {filtersOpen ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                </Box>
+                <Collapse in={filtersOpen} unmountOnExit>
+                    <Box sx={{ pt: 1, px: 1, pb: 1 }}>
+                        {filterBox}
+                    </Box>
+                </Collapse>
+            </Paper>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="customers table">
                     <TableHead>

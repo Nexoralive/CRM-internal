@@ -56,7 +56,7 @@ export class TransactionsService {
       totalPages: Math.ceil(total / limit),
     };
   }
-  async getOptions(website?: string) {
+  async getOptions(website?: string, branch?: string) {
     const panelsQuery = this.transactionsRepository
       .createQueryBuilder('transaction')
       .select('DISTINCT transaction.panel', 'panel')
@@ -64,6 +64,9 @@ export class TransactionsService {
 
     if (website) {
       panelsQuery.where('transaction.website = :website', { website });
+    }
+    if (branch) {
+      panelsQuery.andWhere('transaction.branch = :branch', { branch });
     }
 
     const panels = await panelsQuery.getRawMany();
@@ -74,9 +77,21 @@ export class TransactionsService {
       .orderBy('transaction.website', 'ASC')
       .getRawMany();
 
+    const branchesQuery = this.transactionsRepository
+      .createQueryBuilder('transaction')
+      .select('DISTINCT transaction.branch', 'branch')
+      .orderBy('transaction.branch', 'ASC');
+
+    if (website) {
+      branchesQuery.where('transaction.website = :website', { website });
+    }
+
+    const branches = await branchesQuery.getRawMany();
+
     return {
       panels: panels.map((p) => p.panel).filter(Boolean),
       websites: websites.map((w) => w.website).filter(Boolean),
+      branches: branches.map((b) => b.branch).filter(Boolean),
     };
   }
 
@@ -86,8 +101,21 @@ export class TransactionsService {
     search?: string,
     website?: string,
     panel?: string, // panel parameter filters by transaction.panel column
+    branch?: string,
     status?: string,
+    gameInterest?: string,
     lastDepositDate?: string,
+    firstDepositDate?: string,
+    minTotalDepositAmount?: string,
+    maxTotalDepositAmount?: string,
+    firstWithdrawalDate?: string,
+    lastWithdrawalDate?: string,
+    minTotalWithdrawalAmount?: string,
+    maxTotalWithdrawalAmount?: string,
+    firstTransactionDate?: string,
+    lastTransactionDate?: string,
+    lastCallDate?: string,
+    lastCallOutcome?: string,
     userWebsite?: string, // User's assigned website (for restriction)
     userPanels?: string[], // User's assigned panels (for restriction)
   ) {
@@ -107,11 +135,11 @@ export class TransactionsService {
         Customer,
         'customer',
         'customer.externalId = transaction.client AND customer.websiteId = website_entity.id',
-      ).andWhere('customer.id IS NOT NULL');
+      );
 
       if (search) {
         qb.andWhere(
-          '(transaction.client ILIKE :search OR transaction.branch ILIKE :search OR transaction.website ILIKE :search)',
+          '(transaction.client ILIKE :search OR transaction.branch ILIKE :search OR transaction.website ILIKE :search OR transaction.panel ILIKE :search)',
           { search: `%${search}%` },
         );
       }
@@ -149,6 +177,137 @@ export class TransactionsService {
           panel: panel.trim(),
         });
       }
+
+      if (branch) {
+        qb.andWhere('LOWER(transaction.branch) = LOWER(:branch)', {
+          branch: branch.trim(),
+        });
+      }
+
+      if (gameInterest) {
+        qb.andWhere('customer.gameInterest = :gameInterest', { gameInterest });
+      }
+
+      if (lastDepositDate) {
+        qb.andWhere('DATE(customer.lastDepositDate) = :lastDepositDate', {
+          lastDepositDate,
+        });
+      }
+
+      if (firstDepositDate) {
+        qb.andWhere('DATE(customer.firstDepositDate) = :firstDepositDate', {
+          firstDepositDate,
+        });
+      }
+
+      if (firstWithdrawalDate) {
+        qb.andWhere(
+          'DATE(customer.firstWithdrawalDate) = :firstWithdrawalDate',
+          {
+            firstWithdrawalDate,
+          },
+        );
+      }
+
+      if (lastWithdrawalDate) {
+        qb.andWhere('DATE(customer.lastWithdrawalDate) = :lastWithdrawalDate', {
+          lastWithdrawalDate,
+        });
+      }
+
+      if (minTotalDepositAmount) {
+        qb.andWhere('customer.totalDeposits >= :minTotalDepositAmount', {
+          minTotalDepositAmount,
+        });
+      }
+
+      if (maxTotalDepositAmount) {
+        qb.andWhere('customer.totalDeposits <= :maxTotalDepositAmount', {
+          maxTotalDepositAmount,
+        });
+      }
+
+      if (minTotalWithdrawalAmount) {
+        qb.andWhere('customer.totalWithdrawals >= :minTotalWithdrawalAmount', {
+          minTotalWithdrawalAmount,
+        });
+      }
+
+      if (maxTotalWithdrawalAmount) {
+        qb.andWhere('customer.totalWithdrawals <= :maxTotalWithdrawalAmount', {
+          maxTotalWithdrawalAmount,
+        });
+      }
+
+      if (firstTransactionDate) {
+        qb.andWhere(
+          'LEAST(customer.firstWithdrawalDate, customer.firstDepositDate) = :firstTransactionDate',
+          { firstTransactionDate },
+        );
+      }
+
+      if (lastTransactionDate) {
+        qb.andWhere(
+          'GREATEST(customer.lastWithdrawalDate, customer.lastDepositDate) = :lastTransactionDate',
+          { lastTransactionDate },
+        );
+      }
+
+      if (lastCallDate || lastCallOutcome) {
+        const subqueryConditions: string[] = [
+          "i.type = 'call'",
+          `i.created_at = (
+            SELECT MAX(i2.created_at)
+            FROM interactions i2
+            WHERE i2.customer_id = i.customer_id
+              AND i2.type = 'call'
+          )`,
+        ];
+        const subqueryParams: Record<string, unknown> = {};
+        if (lastCallDate) {
+          subqueryConditions.push('DATE(i.created_at) = :lastCallDate');
+          subqueryParams.lastCallDate = lastCallDate;
+        }
+        if (lastCallOutcome) {
+          subqueryConditions.push('i.content ILIKE :lastCallOutcome');
+          subqueryParams.lastCallOutcome = `%${lastCallOutcome}%`;
+        }
+        // If userWebsite and userPanels are given, narrow customers by branch/panel in subquery
+        if (userWebsite && userPanels && userPanels.length > 0) {
+          if (branch) {
+            subqueryConditions.push('LOWER(c.branch) = LOWER(:subBranch)');
+            subqueryParams.subBranch = branch.trim();
+          }
+          subqueryConditions.push('LOWER(c.panel_name) IN (:...subPanels)');
+          subqueryParams.subPanels = userPanels.map((p) => p.toLowerCase());
+        }
+        const subquery = `
+          SELECT i.customer_id
+          FROM interactions i
+          JOIN customers c ON c.id = i.customer_id
+          WHERE ${subqueryConditions.join('\n            AND ')}
+        `;
+        qb.andWhere(`customer.id IN (${subquery})`, subqueryParams);
+      }
+
+      if (status) {
+        const statusCase = `
+          CASE
+            WHEN GREATEST(
+                   COALESCE(customer.lastDepositDate, 'epoch'::timestamp),
+                   COALESCE(customer.lastWithdrawalDate, 'epoch'::timestamp)
+                 ) >= (NOW() - INTERVAL '3 days') THEN 'active'
+            WHEN GREATEST(
+                   COALESCE(customer.lastDepositDate, 'epoch'::timestamp),
+                   COALESCE(customer.lastWithdrawalDate, 'epoch'::timestamp)
+                 ) > (NOW() - INTERVAL '30 days') THEN 'inactive'
+            ELSE 'sleeping'
+          END
+        `;
+
+        qb.andWhere(`${statusCase} = :status`, { status });
+      }
+
       return qb;
     };
 
@@ -184,13 +343,6 @@ export class TransactionsService {
       )
       .groupBy('transaction.client')
       .addGroupBy('customer.id');
-
-    if (lastDepositDate) {
-      query.having(
-        "MAX(CASE WHEN transaction.type = 'DEPOSIT' THEN transaction.date END)::date = :lastDepositDate",
-        { lastDepositDate },
-      );
-    }
 
     query
       .orderBy('transaction.client', 'ASC')

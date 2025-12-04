@@ -8,6 +8,7 @@ import {
   JoinColumn,
   Unique,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { Interaction } from '../../interactions/entities/interaction.entity';
 import { Website } from '../../websites/entities/website.entity';
@@ -51,18 +52,25 @@ export class Customer {
   @Column({ nullable: true })
   phone: string;
 
+  @Index()
   @Column({
     name: 'total_deposits',
     type: 'decimal',
     precision: 15,
     scale: 2,
-    default: 0,
+    nullable: true,
   })
   totalDeposits: number;
 
+  @Index()
   @Column({ name: 'last_deposit_date', nullable: true })
   lastDepositDate: Date;
 
+  @Index()
+  @Column({ name: 'first_deposit_date', nullable: true })
+  firstDepositDate: Date;
+
+  @Index()
   @Column({
     name: 'last_deposit_amount',
     type: 'decimal',
@@ -71,6 +79,54 @@ export class Customer {
     nullable: true,
   })
   lastDepositAmount: number;
+
+  @Index()
+  @Column({
+    name: 'total_deposit_amount',
+    nullable: true,
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+  })
+  totalDepositAmount: number;
+
+  @Index()
+  @Column({
+    name: 'total_withdrawals',
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    nullable: true,
+  })
+  totalWithdrawals: number;
+
+  @Index()
+  @Column({ name: 'last_withdrawal_date', nullable: true })
+  lastWithdrawalDate: Date;
+
+  @Index()
+  @Column({ name: 'first_withdrawal_date', nullable: true })
+  firstWithdrawalDate: Date;
+
+  @Index()
+  @Column({
+    name: 'last_withdrawal_amount',
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    nullable: true,
+  })
+  lastWithdrawalAmount: number;
+
+  @Index()
+  @Column({
+    name: 'total_withdrawal_amount',
+    nullable: true,
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+  })
+  totalWithdrawalAmount: number;
 
   // New fields for extended customer details
   @Column({ nullable: true })

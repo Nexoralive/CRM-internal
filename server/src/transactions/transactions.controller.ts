@@ -35,8 +35,11 @@ export class TransactionsController {
   }
 
   @Get('options')
-  getOptions(@Query('website') website?: string) {
-    return this.transactionsService.getOptions(website);
+  getOptions(
+    @Query('website') website?: string,
+    @Query('branch') branch?: string,
+  ) {
+    return this.transactionsService.getOptions(website, branch);
   }
 
   @Get('clients')
@@ -47,8 +50,21 @@ export class TransactionsController {
     @Query('search') search?: string,
     @Query('website') website?: string,
     @Query('panel') panel?: string,
+    @Query('branch') branch?: string,
     @Query('status') status?: string,
+    @Query('gameInterest') gameInterest?: string,
     @Query('lastDepositDate') lastDepositDate?: string,
+    @Query('firstDepositDate') firstDepositDate?: string,
+    @Query('minTotalDepositAmount') minTotalDepositAmount?: string,
+    @Query('maxTotalDepositAmount') maxTotalDepositAmount?: string,
+    @Query('firstWithdrawalDate') firstWithdrawalDate?: string,
+    @Query('lastWithdrawalDate') lastWithdrawalDate?: string,
+    @Query('minTotalWithdrawalAmount') minTotalWithdrawalAmount?: string,
+    @Query('maxTotalWithdrawalAmount') maxTotalWithdrawalAmount?: string,
+    @Query('firstTransactionDate') firstTransactionDate?: string,
+    @Query('lastTransactionDate') lastTransactionDate?: string,
+    @Query('lastCallDate') lastCallDate?: string,
+    @Query('lastCallOutcome') lastCallOutcome?: string,
   ) {
     // Get user with website relation to get website name
     const userWithWebsite =
@@ -69,8 +85,21 @@ export class TransactionsController {
       search,
       website, // Allow explicit filter
       panel, // Allow explicit filter
+      branch, // Allow explicit filter
       status,
+      gameInterest,
       lastDepositDate,
+      firstDepositDate,
+      minTotalDepositAmount,
+      maxTotalDepositAmount,
+      firstWithdrawalDate,
+      lastWithdrawalDate,
+      minTotalWithdrawalAmount,
+      maxTotalWithdrawalAmount,
+      firstTransactionDate,
+      lastTransactionDate,
+      lastCallDate,
+      lastCallOutcome,
       isAdmin ? undefined : userWebsite, // Apply restriction only for non-admin
       isAdmin ? undefined : userPanels, // Apply restriction only for non-admin
     );
